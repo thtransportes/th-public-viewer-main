@@ -1,0 +1,251 @@
+/* ========================================================== */
+/* ARQUIVO: visualizador-anexos.css (VERSÃO COMPLETA E CORRIGIDA) */
+/* ========================================================== */
+
+/* --- INÍCIO: Conteúdo do global.css COLADO AQUI --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --cor-fundo: #f9fafb;
+    --cor-superficie: #ffffff;
+    --cor-primaria: #4f46e5;
+    --cor-primaria-claro: #e0e7ff;
+    --cor-texto-principal: #111827;
+    --cor-texto-secundario: #6b7280;
+    --cor-borda: #e5e7eb;
+    --sombra-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    --sombra-card-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --raio-borda: 12px;
+    --transicao-padrao: all 0.2s ease-in-out;
+}
+
+body {
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto-principal);
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+/* --- FIM: Conteúdo do global.css --- */
+
+
+/* --- ESTILOS GERAIS DA PÁGINA --- */
+body {
+    padding: 16px;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --- CABEÇALHO (HEADER) REFINADO --- */
+.header {
+    text-align: center;
+    margin-bottom: 48px;
+    border-bottom: 1px solid var(--cor-borda);
+    padding-bottom: 24px;
+}
+
+.header img {
+    height: 50px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
+}
+
+.header h1 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--cor-texto-principal);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.header p {
+    font-size: 1.125rem;
+    color: var(--cor-texto-secundario);
+    margin-top: 8px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- GALERIA DE ANEXOS (MELHORIA PRINCIPAL) --- */
+#gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 32px;
+}
+
+/* Card de Arquivo - Efeitos e Detalhes Aprimorados */
+.file-card {
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-borda);
+    box-shadow: var(--sombra-card);
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: var(--transicao-padrao);
+    position: relative;
+}
+
+.file-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--sombra-card-hover);
+    border-color: var(--cor-primaria);
+}
+
+.thumbnail {
+    width: 100%;
+    height: 220px;
+    background-color: var(--cor-fundo);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--cor-borda);
+    position: relative;
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.file-card:hover .thumbnail img {
+    transform: scale(1.05);
+}
+
+.thumbnail::after {
+    content: '🔍';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    font-size: 3rem;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.4);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: var(--transicao-padrao);
+    backdrop-filter: blur(2px);
+}
+
+.file-card.glightbox:hover .thumbnail::after {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.thumbnail .icon {
+    font-size: 4rem;
+    color: var(--cor-borda);
+    transition: color 0.3s ease;
+}
+
+.file-card:hover .thumbnail .icon {
+    color: var(--cor-primaria-claro);
+}
+
+.file-info {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.file-info strong {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--cor-texto-principal);
+    white-space: normal;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.4;
+}
+
+.file-info .badge {
+    align-self: flex-start;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 999px;
+    width: fit-content;
+    text-transform: capitalize;
+}
+
+.badge[data-category="fotos-itens"] {
+    background-color: #dbeafe; color: #1e40af;
+}
+.badge[data-category="comprovantes"] {
+    background-color: #d1fae5; color: #065f46;
+}
+.badge[data-category="geral"] {
+    background-color: #e5e7eb; color: #374151;
+}
+
+/* --- ESTADOS DE CARREGAMENTO E ERRO --- */
+#loading, #not-found {
+    text-align: center;
+    padding: 80px 24px;
+    font-size: 1.25rem;
+    color: var(--cor-texto-secundario);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+#loading::before {
+    content: '';
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--cor-borda);
+    border-top-color: var(--cor-primaria);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* --- AJUSTES DE RESPONSIVIDADE PARA CELULAR --- */
+@media (max-width: 768px) {
+    body {
+        padding: 16px;
+    }
+    .header {
+        margin-bottom: 32px;
+        padding-bottom: 16px;
+    }
+    .header h1 {
+        font-size: 1.75rem;
+    }
+    .header p {
+        font-size: 1rem;
+    }
+    #gallery {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 16px;
+    }
+    .thumbnail {
+        height: 180px;
+    }
+}
