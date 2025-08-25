@@ -51,7 +51,7 @@ body {
 }
 
 .header img {
-    height: 50px;
+    height: 140px;
     margin-bottom: 20px;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
 }
@@ -249,3 +249,4 @@ body {
         height: 180px;
     }
 }
+
