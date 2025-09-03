@@ -24,14 +24,14 @@
 
     <script src="https://cdn.jsdelivr.net/gh/mcstudios/glightbox/dist/js/glightbox.min.js"></script>
 
-    <!-- SCRIPT CORRIGIDO FINAL -->
+    <!-- SCRIPT 100% CORRIGIDO E COM SUPORTE A VÍDEO -->
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
         const gallery = document.getElementById('gallery');
         const loading = document.getElementById('loading');
         const notFound = document.getElementById('not-found');
         const serviceCodeEl = document.getElementById('service-code');
-        const workerUrl = 'https://erp-link-resolver.thtransportes021.workers.dev'; 
+        const workerUrl = 'https://erp-link-resolver.thtransportes021.workers.dev';
 
         try {
             const key = window.location.hash.substring(1);
@@ -44,8 +44,6 @@
             }
             const data = await response.json();
             
-            // --- CORREÇÃO APLICADA AQUI ---
-            // Agora procuramos a propriedade 'codigo_projeto' no JSON recebido, em vez de 'projectCode'.
             if (!data || !data.codigo_projeto) {
                  throw new Error('Os dados recebidos do link compartilhado são inválidos.');
             }
@@ -57,29 +55,47 @@
 
             data.files.forEach(file => {
                 const fileUrl = `${data.publicR2Url}/${file.url}`;
+                // --- CORREÇÃO 1: Adicionamos a verificação de vídeos ---
                 const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name);
+                const isVideo = /\.(mp4|webm|ogg)$/i.test(file.name);
+                const isMedia = isImage || isVideo;
+
                 const card = document.createElement('a');
                 card.href = fileUrl;
                 card.className = 'file-card glightbox';
                 card.setAttribute('data-gallery', 'project-gallery');
                 card.setAttribute('data-title', file.name);
 
-                if (!isImage) {
+                // --- CORREÇÃO 2: Só removemos o glightbox se não for nem imagem NEM vídeo ---
+                if (!isMedia) {
                     card.classList.remove('glightbox');
                     card.target = '_blank';
                 }
 
+                // --- CORREÇÃO 3: Criamos um thumbnail apropriado para cada tipo de arquivo ---
+                let thumbnailHTML = '';
+                if (isImage) {
+                    thumbnailHTML = `<img src="${fileUrl}" alt="${file.name}">`;
+                } else if (isVideo) {
+                    // Adicionamos um ícone de play para vídeos
+                    thumbnailHTML = `<div class="icon-background"><div class="play-icon">▶</div></div>`;
+                } else {
+                    thumbnailHTML = `<div class="icon">📄</div>`;
+                }
+
                 card.innerHTML = `
                     <div class="thumbnail">
-                        ${isImage ? `<img src="${fileUrl}" alt="${file.name}">` : `<div class="icon">📄</div>`}
+                        ${thumbnailHTML}
                     </div>
                     <div class="file-info">
                         <strong>${file.name}</strong>
-                        <span class="badge" data-category="${file.category}">${file.category.replace('-', ' ')}</span>
+                        <span class="badge" data-category="${file.category}">${file.category.replace(/-/g, ' ')}</span>
                     </div>
                 `;
                 gallery.appendChild(card);
             });
+            
+            // O GLightbox já sabe como lidar com links de vídeo por padrão
             const lightbox = GLightbox({ selector: '.glightbox' });
 
         } catch (error) {
@@ -93,4 +109,3 @@
     </script>
 </body>
 </html>
-
