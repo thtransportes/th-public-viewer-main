@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anexos do Serviço</title>
+    <title>Visualizador TH Transportes</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
     <link rel="stylesheet" href="visualizador-anexos.css">
@@ -13,49 +13,144 @@
         <header class="header">
             <img src="/img/LOGO TH PRETO.png" alt="Logo TH Transportes">
             <h1 id="service-code">Carregando...</h1>
-            <p>Visualizador de Anexos</p>
+            <p id="page-subtitle">Visualizador</p>
         </header>
         <main>
-            <div id="loading">Carregando anexos, por favor aguarde...</div>
+            <div id="loading">Carregando dados, por favor aguarde...</div>
             <div id="not-found" style="display: none;"></div>
+            
+            <!-- Container da Galeria (Fotos/Vídeos) -->
             <div id="gallery"></div>
+
+            <!-- NOVO: Container da Lista de Materiais -->
+            <div id="material-list" style="display: none;">
+                <div class="progress-container">
+                    <div class="progress-text">Progresso: <span id="progress-count">0/0</span></div>
+                    <div class="progress-bar"><div id="progress-fill" style="width: 0%"></div></div>
+                </div>
+                <ul id="checklist-items"></ul>
+                <div id="success-msg" class="success-banner" style="display: none;">
+                    ✅ Todos os itens conferidos!
+                </div>
+            </div>
         </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/gh/mcstudios/glightbox/dist/js/glightbox.min.js"></script>
 
-    <!-- SCRIPT 100% CORRIGIDO E COM SUPORTE A VÍDEO -->
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
-        const gallery = document.getElementById('gallery');
-        const loading = document.getElementById('loading');
-        const notFound = document.getElementById('not-found');
-        const serviceCodeEl = document.getElementById('service-code');
+        // Elementos DOM
+        const els = {
+            gallery: document.getElementById('gallery'),
+            materialList: document.getElementById('material-list'),
+            checklistItems: document.getElementById('checklist-items'),
+            loading: document.getElementById('loading'),
+            notFound: document.getElementById('not-found'),
+            title: document.getElementById('service-code'),
+            subtitle: document.getElementById('page-subtitle'),
+            progressFill: document.getElementById('progress-fill'),
+            progressCount: document.getElementById('progress-count'),
+            successMsg: document.getElementById('success-msg')
+        };
+
         const workerUrl = 'https://erp-link-resolver.thtransportes021.workers.dev';
 
         try {
             const key = window.location.hash.substring(1);
-            if (!key) { throw new Error('Link inválido. Nenhum ID de compartilhamento encontrado.'); }
+            if (!key) throw new Error('Link inválido. ID não encontrado.');
 
             const response = await fetch(`${workerUrl}?id=${key}`);
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ error: 'Falha ao buscar os dados do link.' }));
-                throw new Error(errorData.error);
-            }
+            if (!response.ok) throw new Error('Link expirado ou não encontrado.');
+            
             const data = await response.json();
             
-            if (!data || !data.codigo_projeto) {
-                 throw new Error('Os dados recebidos do link compartilhado são inválidos.');
+            if (!data) throw new Error('Dados inválidos.');
+
+            // Atualiza cabeçalho comum
+            els.title.textContent = data.titulo || `Serviço ${data.codigo_projeto}`;
+            els.subtitle.textContent = data.subtitulo || (data.tipo === 'materiais' ? 'Lista de Separação' : 'Galeria de Anexos');
+            els.loading.style.display = 'none';
+
+            // === LÓGICA DE DECISÃO ===
+            
+            // CASO 1: É UMA LISTA DE MATERIAIS?
+            if (data.tipo === 'materiais' && data.itens) {
+                renderMaterialList(data.itens);
+            } 
+            // CASO 2: É UMA GALERIA DE ARQUIVOS?
+            else if (data.files && data.files.length > 0) {
+                renderGallery(data);
+            } 
+            // CASO 3: VAZIO OU ERRO
+            else {
+                throw new Error('Nenhum conteúdo disponível neste link.');
             }
 
-            serviceCodeEl.textContent = `Serviço ${data.codigo_projeto}`;
-            if (!data.files || data.files.length === 0) { throw new Error('Nenhum arquivo para exibir neste link.'); }
+        } catch (error) {
+            console.error("Erro:", error);
+            els.loading.style.display = 'none';
+            els.title.textContent = 'Erro';
+            els.notFound.textContent = error.message;
+            els.notFound.style.display = 'block';
+        }
 
-            loading.style.display = 'none';
+        // --- FUNÇÃO PARA RENDERIZAR LISTA DE MATERIAIS ---
+        function renderMaterialList(itens) {
+            els.materialList.style.display = 'block';
+            els.gallery.style.display = 'none';
+
+            let checkedCount = 0;
+            const total = itens.length;
+
+            const updateProgress = () => {
+                const pct = Math.round((checkedCount / total) * 100);
+                els.progressFill.style.width = `${pct}%`;
+                els.progressCount.textContent = `${checkedCount}/${total}`;
+                
+                if (checkedCount === total) {
+                    els.successMsg.style.display = 'block';
+                    // Efeito de confete ou som poderia vir aqui
+                } else {
+                    els.successMsg.style.display = 'none';
+                }
+            };
+
+            updateProgress(); // Inicializa
+
+            itens.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'check-item';
+                li.innerHTML = `
+                    <div class="checkbox-custom">✔</div>
+                    <div class="item-data">
+                        <span class="qty">${item.qtd} ${item.unidade || 'un'}</span>
+                        <span class="name">${item.nome}</span>
+                    </div>
+                `;
+
+                // Evento de Click (Toggle)
+                li.addEventListener('click', () => {
+                    li.classList.toggle('checked');
+                    if (li.classList.contains('checked')) {
+                        checkedCount++;
+                    } else {
+                        checkedCount--;
+                    }
+                    updateProgress();
+                });
+
+                els.checklistItems.appendChild(li);
+            });
+        }
+
+        // --- FUNÇÃO PARA RENDERIZAR GALERIA (Seu código original refatorado) ---
+        function renderGallery(data) {
+            els.gallery.style.display = 'grid';
+            els.materialList.style.display = 'none';
 
             data.files.forEach(file => {
                 const fileUrl = `${data.publicR2Url}/${file.url}`;
-                // --- CORREÇÃO 1: Adicionamos a verificação de vídeos ---
                 const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name);
                 const isVideo = /\.(mp4|webm|ogg)$/i.test(file.name);
                 const isMedia = isImage || isVideo;
@@ -64,46 +159,27 @@
                 card.href = fileUrl;
                 card.className = 'file-card glightbox';
                 card.setAttribute('data-gallery', 'project-gallery');
-                card.setAttribute('data-title', file.name);
-
-                // --- CORREÇÃO 2: Só removemos o glightbox se não for nem imagem NEM vídeo ---
+                
                 if (!isMedia) {
                     card.classList.remove('glightbox');
                     card.target = '_blank';
                 }
 
-                // --- CORREÇÃO 3: Criamos um thumbnail apropriado para cada tipo de arquivo ---
-                let thumbnailHTML = '';
-                if (isImage) {
-                    thumbnailHTML = `<img src="${fileUrl}" alt="${file.name}">`;
-                } else if (isVideo) {
-                    // Adicionamos um ícone de play para vídeos
-                    thumbnailHTML = `<div class="icon-background"><div class="play-icon">▶</div></div>`;
-                } else {
-                    thumbnailHTML = `<div class="icon">📄</div>`;
-                }
+                let thumbContent = `<div class="icon">📄</div>`;
+                if (isImage) thumbContent = `<img src="${fileUrl}" loading="lazy">`;
+                if (isVideo) thumbContent = `<div class="icon-background"><div class="play-icon">▶</div></div>`;
 
                 card.innerHTML = `
-                    <div class="thumbnail">
-                        ${thumbnailHTML}
-                    </div>
+                    <div class="thumbnail">${thumbContent}</div>
                     <div class="file-info">
                         <strong>${file.name}</strong>
-                        <span class="badge" data-category="${file.category}">${file.category.replace(/-/g, ' ')}</span>
+                        <span class="badge" data-category="${file.category}">${file.category}</span>
                     </div>
                 `;
-                gallery.appendChild(card);
+                els.gallery.appendChild(card);
             });
-            
-            // O GLightbox já sabe como lidar com links de vídeo por padrão
-            const lightbox = GLightbox({ selector: '.glightbox' });
 
-        } catch (error) {
-            console.error("Erro:", error);
-            loading.style.display = 'none';
-            serviceCodeEl.textContent = 'Erro ao Carregar';
-            notFound.textContent = error.message;
-            notFound.style.display = 'block';
+            GLightbox({ selector: '.glightbox' });
         }
     });
     </script>
