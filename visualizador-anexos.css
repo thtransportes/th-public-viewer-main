@@ -238,6 +238,139 @@ body {
     animation: spin 1s linear infinite;
 }
 
+/* ========================================= */
+/* ESTILOS DA LISTA DE MATERIAIS (CHECKLIST) */
+/* ========================================= */
+
+#material-list {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Barra de Progresso */
+.progress-container {
+    margin-bottom: 24px;
+    background: white;
+    padding: 16px;
+    border-radius: var(--raio-borda);
+    border: 1px solid var(--cor-borda);
+    box-shadow: var(--sombra-card);
+}
+
+.progress-text {
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.progress-bar {
+    height: 12px;
+    background-color: #f3f4f6;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#progress-fill {
+    height: 100%;
+    background-color: #10b981; /* Verde */
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Lista de Itens */
+#checklist-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.check-item {
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-borda);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.check-item:active {
+    transform: scale(0.98);
+}
+
+/* Checkbox Customizado */
+.checkbox-custom {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.item-data {
+    display: flex;
+    flex-direction: column;
+}
+
+.qty {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--cor-texto-principal);
+}
+
+.name {
+    color: var(--cor-texto-secundario);
+    font-size: 0.95rem;
+}
+
+/* ESTADO: MARCADO (CHECKED) */
+.check-item.checked {
+    background-color: #ecfdf5; /* Verde muito claro */
+    border-color: #a7f3d0;
+}
+
+.check-item.checked .checkbox-custom {
+    background-color: #10b981;
+    border-color: #10b981;
+}
+
+.check-item.checked .name {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+/* Banner de Sucesso */
+.success-banner {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #d1fae5;
+    color: #065f46;
+    text-align: center;
+    border-radius: var(--raio-borda);
+    font-weight: 700;
+    font-size: 1.1rem;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* --- AJUSTES DE RESPONSIVIDADE PARA CELULAR --- */
@@ -249,3 +382,4 @@ body {
     #gallery { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
     .thumbnail { height: 180px; }
 }
+
